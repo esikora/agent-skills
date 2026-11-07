@@ -1,0 +1,32 @@
+/* Markdown preview that approximates the Hackster.io story column.
+
+   Use it as custom preview stylesheet (VS Code, VSCodium, Cursor:
+   setting "markdown.styles"; other editors: their custom CSS option).
+
+   Layout only (no fonts or colors), so copying from the preview into
+   the Hackster editor does not carry extra styling.
+
+   max-width: width of the Hackster story column, measured in Firefox
+   developer tools in November 2026 (615 px). If Hackster changes its
+   layout, open a published story, inspect the story text and use the
+   width of its column. content-box: the preview's own side padding is
+   added outside, so the text column itself has this width. */
+
+body {
+  box-sizing: content-box;
+  max-width: 615px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+}
+
+pre code {
+  font-size: 14px;
+}
