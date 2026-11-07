@@ -24,7 +24,8 @@ These locations may change; check the current documentation of your tool. Each s
 ## Repository layout
 
 ```
-skills/<skill>/SKILL.md      instructions (frontmatter: name, description, compatibility)
+skills/<skill>/SKILL.md      instructions (frontmatter: name, description, compatibility, license, metadata.source)
+skills/<skill>/LICENSE      copy of the repository's LICENSE (travels with a copied skill folder)
 skills/<skill>/README.md     description for humans: contents, installation, usage
 skills/<skill>/scripts/      optional helper scripts
 tests/                       automated tests of the scripts
@@ -43,6 +44,7 @@ Rules for skills in this repository:
 
 - Keep skills agent-independent: use the folder layout and frontmatter fields of the Agent Skills specification, and avoid agent-specific frontmatter fields, tool names or slash commands unless there is a good reason (then keep the skill usable without them). State external requirements (e.g. Python, packages) in the `compatibility` field.
 - The folder name must match the `name` in the frontmatter (lowercase, hyphens).
+- Each skill folder contains a copy of `LICENSE` and states `license` and `metadata.source` in the frontmatter, so that a copy of the folder alone keeps the license notice and the link to the original. The tests check that the copies match the root `LICENSE`.
 - Scripts use only the Python standard library and print their usage when called without arguments. Exception: an optional feature may need a package (e.g. Pillow for censoring photos). Declare it as inline script metadata (PEP 723) so that `uv run` installs it, import it only where the feature needs it, and keep everything else working without it.
 - One line per paragraph or list item in Markdown files (no hard wrapping inside formatting spans).
 

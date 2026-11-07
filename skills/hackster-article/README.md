@@ -8,7 +8,8 @@ The skill uses the open [Agent Skills](https://agentskills.io) format (a folder 
 
 | File | Purpose |
 |---|---|
-| `SKILL.md` | The instructions (frontmatter with name and description, then the rules and a final checklist) |
+| `SKILL.md` | The instructions (frontmatter with name, description, license and source, then the rules and a final checklist) |
+| `LICENSE` | MIT license (copy of the repository's license) |
 | `scripts/check_article.py` | Checks a Markdown draft for formatting problems (tables, heading levels, code block layout, inline code, long paragraphs, abbreviations, unused photos; `--publish` for leftovers before publishing) |
 | `scripts/sanitize_photos.py` | Writes copies of JPEG photos without metadata (GPS location, time, camera), without re-encoding; optionally pixelates areas listed in `censor.txt` (needs Pillow) |
 | `assets/hackster-preview.css` | Stylesheet for the Markdown preview that approximates the Hackster story column (width, images, code font) |

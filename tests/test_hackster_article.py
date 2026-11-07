@@ -425,5 +425,26 @@ def run_sanitize(src, dst, *args, check=False, env=None):
                           env=env)
 
 
+class SkillPackagingTest(unittest.TestCase):
+    """Each skill folder must carry the license and the source link on its own."""
+
+    def test_license_and_source(self):
+        with open(os.path.join(ROOT, "LICENSE"), encoding="utf-8") as f:
+            root_license = f.read()
+        skills_dir = os.path.join(ROOT, "skills")
+        for name in sorted(os.listdir(skills_dir)):
+            folder = os.path.join(skills_dir, name)
+            if not os.path.isdir(folder):
+                continue
+            with self.subTest(skill=name):
+                with open(os.path.join(folder, "LICENSE"), encoding="utf-8") as f:
+                    self.assertEqual(f.read(), root_license, "LICENSE differs from the root")
+                with open(os.path.join(folder, "SKILL.md"), encoding="utf-8") as f:
+                    frontmatter = f.read().split("\n---\n", 1)[0]
+                self.assertRegex(frontmatter, r"(?m)^license: MIT\b")
+                self.assertRegex(frontmatter,
+                                 r"(?m)^  source: https://github\.com/esikora/agent-skills$")
+
+
 if __name__ == "__main__":
     unittest.main()

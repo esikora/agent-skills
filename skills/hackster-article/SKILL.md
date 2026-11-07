@@ -2,6 +2,9 @@
 name: hackster-article
 description: Write, review or shorten a project article for Hackster.io (maker / electronics / IoT community) from a hardware project repository. Use when the user wants a Hackster project description, story, write-up or tutorial, wants an existing draft checked against Hackster's guidelines, or asks how to format code, parts lists or images for Hackster.
 compatibility: Works with any agent that supports Agent Skills (SKILL.md). The optional scripts need Python 3 (standard library only; censoring photos with sanitize_photos.py also needs Pillow, which `uv run` installs automatically).
+license: MIT (see LICENSE)
+metadata:
+  source: https://github.com/esikora/agent-skills
 ---
 
 # Authoring Hackster.io project articles
@@ -295,3 +298,7 @@ The report is for the author, not part of the article; it may use a table.
 - [ ] Before transferring: images ready, meta information entered in the project editor (Markdown draft: `scripts/check_article.py --publish` reports no errors).
 - [ ] After transferring: formatting checked in Hackster's preview (desktop and phone).
 - [ ] Spelling and grammar checked; consistent spelling variant.
+
+---
+
+Original and free: https://github.com/esikora/agent-skills (MIT license).
