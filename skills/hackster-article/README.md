@@ -19,7 +19,7 @@ The scripts need Python 3 and use only the standard library (censoring photos wi
 
 The agent suggests this setup when you start an article (and checks it in an existing project). To set it up by hand:
 
-- `doc/hackster.md` for the draft, `doc/photos/original/` for the original photos (add it to `.gitignore`, it contains GPS data), `doc/photos/web/` for the copies without metadata.
+- `doc/hackster.md` for the draft, `doc/photos/original/` for the original photos (add it to `.gitignore`, it contains GPS data), `doc/photos/web/` for the copies without metadata, `doc/wiring/` for wiring diagrams (e.g. Fritzing PNG plus `.fzz` source).
 - Preview like on Hackster in VS Code, VSCodium or Cursor: copy `assets/hackster-preview.css` to `.vscode/hackster-preview.css` and add to `.vscode/settings.json`:
 
   ```json
