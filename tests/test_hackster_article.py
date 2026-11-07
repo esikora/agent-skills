@@ -44,7 +44,7 @@ class CheckArticleTest(unittest.TestCase):
     def test_clean_draft(self):
         text = (
             "# Title\n\n## Story\n\nA short paragraph with `one` code span.\n\n"
-            "**Subsection**\n\n- **GPIO 13:** servo signal\n\n"
+            "**Subsection**\n\nThe pins:\n\n- **GPIO 13:** servo signal\n\n"
             "```cpp\nint x = 5;\n```\n\nSee [link](https://example.com).\n"
         )
         errors, warnings, _ = self.check(text)
@@ -95,6 +95,36 @@ class CheckArticleTest(unittest.TestCase):
         self.assertFalse(any("meta information" in m for m in msgs))
         self.assertTrue(any("figure placeholder" in m for m in msgs))
         self.assertTrue(any("TODO" in m for m in msgs))
+
+    def test_bold_in_running_text(self):
+        text = ("**Power Supply**\n\n**Lesson title.** Some text.\n\n"
+                "The pins:\n\n- **GPIO 13:** servo, see `**kwargs`\n"
+                "- The **servo** gets 5 V.\n\n"
+                "Powered via the **USB-C port**, *every* time.\n")
+        _, warnings, _ = self.check(text)
+        msg = ("bold text in a sentence: use bold only for titles and labels at the start, "
+               "italics for rare emphasis")
+        self.assertEqual(warnings, [(8, msg), (10, msg)])
+
+    def test_list_without_intro(self):
+        text = ("## Things used in this project\n\n**Hardware components**\n\n- 1 × ESP32\n\n"
+                "## Story\n\n**Key Features**\n\n- Captive portal\n- Elevator\n\n"
+                "- Loose list item\n\nThe pins:\n\n- **GPIO 13:** servo\n"
+                "  - nested item\n\n> **Meta**\n>\n> - **Name:** Test\n")
+        _, warnings, _ = self.check(text)
+        self.assertEqual(warnings, [(11, "list without introductory sentence: say what the "
+                                        "list is about, preferably ending with ':'")])
+
+    def test_image_directly_below_heading(self):
+        caption = "[Figure: servo.jpg — Servo with winch spool at the top of the shaft]"
+        text = (f"## Elevator\n\n{caption}\n\n"
+                f"## Lighting\n\nA short introduction.\n\n{caption}\n\n"
+                f"**Power Supply**\n\n{caption}\n\n"
+                f"**Mounting**\n\nA short introduction.\n\n{caption}\n")
+        _, warnings, _ = self.check(text)
+        msg = ("image directly below a heading or subsection title: "
+               "start with a short paragraph, then the image")
+        self.assertEqual(warnings, [(3, msg), (13, msg)])
 
     def test_image_references(self):
         with tempfile.TemporaryDirectory() as d:

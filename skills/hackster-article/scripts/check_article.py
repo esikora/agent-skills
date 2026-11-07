@@ -212,6 +212,60 @@ def unused_image_problems(base, refs, placeholders):
     return problems
 
 
+def is_title(line):
+    """True for a heading or a bold subsection title on a line of its own.
+
+    Hackster offers one heading level, so subsections are bold paragraphs
+    (e.g. "**Power Supply**") and count as titles as well.
+    """
+    line = line.strip()
+    return bool(re.match(r"^#{1,6}\s", line) or re.fullmatch(r"\*\*[^*]+\*\*", line))
+
+
+def directly_after_heading(lines, no):
+    """True if the last non-empty line before line `no` (1-based) is a title."""
+    for prev in reversed(lines[:no - 1]):
+        if prev.strip():
+            return is_title(prev)
+    return False
+
+
+LIST_ITEM_RE = re.compile(r"^([-*+]|\d+\.)\s")
+
+
+def list_without_intro(lines, no):
+    """True if line `no` (1-based) starts a top-level list without a sentence before it.
+
+    A list needs a sentence before it, not just a heading, a bold subsection title,
+    an image or a code block. Lists inside the meta blockquote are not checked.
+    """
+    line = lines[no - 1]
+    if not LIST_ITEM_RE.match(line):
+        return False
+    if no > 1 and lines[no - 2].strip():
+        return False
+    for prev in reversed(lines[:no - 1]):
+        prev = prev.strip()
+        if not prev:
+            continue
+        if LIST_ITEM_RE.match(prev):
+            return False
+        return bool(is_title(prev) or IMAGE_RE.match(prev)
+                    or prev.startswith(("[Figure:", "```")))
+    return True
+
+
+def bold_in_running_text(stripped):
+    """True if a paragraph or list item contains bold text after its start.
+
+    A bold title or label at the start ("**GPIO 13:** ...", "**Lesson.** ...") is fine.
+    """
+    text = LIST_ITEM_RE.sub("", stripped, count=1)
+    text = re.sub(r"^\*\*[^*]+\*\*", "", text, count=1)
+    text = re.sub(r"`[^`]*`", "", text)
+    return "**" in text
+
+
 def count_sentences(text):
     text = re.sub(r"`[^`]*`", "x", text)                 # inline code
     text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)  # links
@@ -228,6 +282,7 @@ def check(path, max_line=MAX_LINE, max_sentences=MAX_SENTENCES, terms=False, pub
     images = 0
     local_refs, placeholder_files = [], []
     cover_found = False
+    section = ""
     base = os.path.dirname(os.path.abspath(path))
     with open(path, encoding="utf-8") as f:
         lines = f.read().split("\n")
@@ -275,7 +330,18 @@ def check(path, max_line=MAX_LINE, max_sentences=MAX_SENTENCES, terms=False, pub
                 errors.extend((no, msg) for msg in image_file_problems(base, cover.group(2)))
         if publish and re.search(r"\bTODO\b", line):
             errors.append((no, "TODO marker"))
+        if m and len(m.group(1)) > 1:
+            section = stripped.lstrip("#").strip()
+        if not stripped.startswith(("#", ">")) and bold_in_running_text(stripped):
+            warnings.append((no, "bold text in a sentence: use bold only for titles and "
+                                 "labels at the start, italics for rare emphasis"))
+        if "things" not in section.lower() and list_without_intro(lines, no):
+            warnings.append((no, "list without introductory sentence: say what the "
+                                 "list is about, preferably ending with ':'"))
         image = IMAGE_RE.match(stripped)
+        if (image or stripped.startswith("[Figure:")) and directly_after_heading(lines, no):
+            warnings.append((no, "image directly below a heading or subsection title: "
+                                 "start with a short paragraph, then the image"))
         if image:
             images += 1
             caption, ref = image.group(1), image.group(2)
